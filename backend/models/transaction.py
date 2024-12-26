@@ -23,13 +23,19 @@ class Transaction:
 
     @staticmethod
     def get_monthly_summary(user_id, month, year):
+        if month == 12:
+            next_month = 1
+            next_year = year + 1
+        else:
+            next_month = month + 1
+            next_year = year
         pipeline = [
             {
                 "$match": {
                     "user_id": user_id,
                     "date": {
                         "$gte": datetime(year, month, 1),
-                        "$lt": datetime(year, month + 1, 1)
+                        "$lt": datetime(next_year, next_month, 1)
                     }
                 }
             },
