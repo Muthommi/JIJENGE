@@ -2,9 +2,20 @@
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from bson import ObjectId
 from models.transaction import Transaction
 
 transaction_routes = Blueprint('transaction_routes', __name__)
+
+
+def json_serializable(data):
+    if isinstance(data, list):
+        return [json_serializable(item) for item in data]
+    if isinstance(data, dict):
+        return {key: json_serializable(value) for key, value in data.items()}
+    if isinstance(data, ObjectId):
+        return str(data)
+    return data
 
 
 @transaction_routes.route('/transactions', methods=['POST'])
@@ -12,9 +23,9 @@ transaction_routes = Blueprint('transaction_routes', __name__)
 def add_transaction():
     data = request.json
     user_id = get_jwt_identity()
-    transaction = Transaction.add_transaction(
-        user_id, data['amount'], data['category'], data.get('description', "")
-    )
+    data['user_id'] = user_id
+    transaction = Transaction.create(data)
+    transaction = json_serializable(transaction)
     return jsonify(transaction), 201
 
 

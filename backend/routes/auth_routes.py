@@ -18,9 +18,12 @@ def json_serializable(user):
 @auth_routes.route('/register', methods=['POST'])
 def register():
     data = request.json
+    print("Received data:", data)
     if not data or not data.get('email') or not data.get('password'):
+        print("Invalid data")
         return jsonify({"message": "Invalid data"}), 400
     if User.find_by_email(data['email']):
+        print("User already exists")
         return jsonify({"message": "User already exists"}), 400
     user = User.register(data['email'], data['password'])
     user = json_serializable(user)
