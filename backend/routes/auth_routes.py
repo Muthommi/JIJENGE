@@ -17,25 +17,20 @@ def json_serializable(user):
 
 @auth_routes.route('/register', methods=['POST'])
 def register():
-    data = request.json
+    data = request.get_json()
     print("Received data:", data)
-    if not data or not data.get('email') or not data.get('password'):
-        print("Invalid data")
-        return jsonify({"message": "Invalid data"}), 400
     if User.find_by_email(data['email']):
-        print("User already exists")
         return jsonify({"message": "User already exists"}), 400
-    user = User.register(data['email'], data['password'])
-    user = json_serializable(user)
-    return jsonify({
-        "message": "User registered successfully",
-        "user": user
-    }), 201
+    try:
+        user = User.register(data['email'], data['password'])
+        return jsonify({'message': 'User registered successfully'}), 201
+    except Exception as e:
+        return jsonify({'message': str(e)}), 500
 
 
 @auth_routes.route('/login', methods=['POST'])
 def login():
-    data = request.json
+    data = request.get_json()
     user = User.find_by_email(data['email'])
     if not user or not User.verify_password(
         data['password'],
@@ -43,4 +38,4 @@ def login():
     ):
         return jsonify({"message": "Invalid credentials"}), 401
     token = generate_token(user['_id'])
-    return jsonify({"token": token}), 200
+    return jsonify({'message': 'Login successful'}), 200

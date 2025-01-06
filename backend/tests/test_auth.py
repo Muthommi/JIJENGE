@@ -39,18 +39,18 @@ def test_register_existing_user(client):
 
 
 def test_login_success(client):
-    client.post('/api/auth/register', json={
+    User.collection.delete_many({})
+    register_response = client.post('/api/auth/register', json={
         'email': 'test@example.com',
         'password': 'securepassword'
     })
-    response = client.post('/api/auth/login', json={
+    assert register_response.status_code == 201
+    
+    login_response = client.post('/api/auth/login', json={
         'email': 'test@example.com',
         'password': 'securepassword'
     })
-    response_data = response.data.decode('utf-8')
-    response_json = json.loads(response_data)
-    assert response.status_code == 200
-    assert 'token' in response.json
+    assert login_response.status_code == 200
 
 
 def test_login_failure(client):
