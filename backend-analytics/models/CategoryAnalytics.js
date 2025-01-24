@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const categoryAnalyticsSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -7,4 +7,5 @@ const categoryAnalyticsSchema = new mongoose.Schema({
   period: { type: String, required: true}, // Format: 'YYYY-MM'
 });
 
-module.exports = mongoose.model('categoryAnalytics', categoryAnalyticsSchema);
+const CategoryAnalytics = mongoose.model('CategoryAnalytics', categoryAnalyticsSchema);
+export default CategoryAnalytics;
