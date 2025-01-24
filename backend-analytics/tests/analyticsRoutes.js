@@ -47,9 +47,15 @@ describe('Analytics Routes', function() {
   });
 
   it('should return summary data', async function() {
-    const userId = 'validUserId';
+    const userId = new mongoose.Types.ObjectId().toString();
     const period = '2023-12';
-    const response = await request(app).get(`/summary/${userId}/${period}`);
+    await Summary.create({
+      userId,
+      period,
+      totalIncome: 5000,
+      savings: 2000
+    });
+    const response = await request(app).get(`/analytics/summary/${userId}/${period}`);
     expect(response.status).to.equal(200);
     expect(response.body).to.have.property('totalIncome').that.is.a('number');
     expect(response.body).to.have.property('totalExpenses').that.is.a('number');
@@ -58,7 +64,8 @@ describe('Analytics Routes', function() {
   });
 
   it('should return category analytics', async function() {
-    const analyticsData = { userId: new mongoose.Types.ObjectId(), category: 'Food', period: '2022', data: 'category data' };
+    const userId = new mongoose.Types.ObjectId();
+    const analyticsData = { userId: new mongoose.Types.ObjectId(), category: 'Food', period: '2022', totalExpense: 100 };
     await CategoryAnalytics.create(analyticsData);
     const response = await request(app)
       .get(`/analytics/category/${analyticsData.userId}/${analyticsData.period}`)
@@ -68,7 +75,8 @@ describe('Analytics Routes', function() {
   });
 
   it('should return trends data', async function() {
-    const trendData = { userId: new mongoose.Types.ObjectId(), type: 'expense', amount: 100, date: new Date(), data: 'trend data' };
+    const userId = new mongoose.Types.ObjectId();
+    const trendData = { userId: new mongoose.Types.ObjectId(), type: 'expense', amount: 100, date: new Date(), };
     await Trend.create(trendData);
     const response = await request(app)
       .get(`/analytics/trends/${trendData.userId}`)
